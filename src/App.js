@@ -10,7 +10,6 @@ function App() {
   const [ShowCart, setShowCart] = useState(false);
   const [candy, setcandy] = useState([]);
   const [cart, setcart] = useState([]);
-  const url = "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678";
 
   function CartHandler() {
     if (ShowCart === false) {
@@ -25,7 +24,7 @@ function App() {
       try {
         const config = {
           method: "GET",
-          url: "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678/Candy",
+          url: "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Candy",
         };
         const data = await axios(config);
         setcandy(data.data);
@@ -38,7 +37,7 @@ function App() {
       try {
         const config = {
           method: "GET",
-          url: "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678/Cart",
+          url: "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Cart",
         };
         const data = await axios(config);
         setcart(data.data);
@@ -53,7 +52,7 @@ function App() {
     try {
       const config = {
         method: "POST",
-        url: "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678/Candy",
+        url: "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Candy",
         data: {
           name: Name,
           description: Description,
@@ -70,23 +69,27 @@ function App() {
     }
   }
   async function AddCandyCartHandler(id, quantity) {
+    console.log(id);
     try {
-      let flag = 0;
-      const item = cart.filter((item) => {
+      var flag = 0;
+      const item = candy.filter((item) => {
         if (item._id === id) {
           return item;
         }
       });
-      const alreadyPresent = cart.filter(async (ele) => {
-        if (ele._id === id) {
+      cart.filter(async (ele) => {
+        if (ele.product_id === id) {
           flag++;
           const config = {
             method: "PUT",
-            url: "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678/Cart",
+            url:
+              "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Cart/" +
+              ele._id,
             data: {
-              name: ele.name,
-              description: ele.description,
-              price: item.price*(ele.quantity+quantity),
+              product_id: item[0]._id,
+              name: item[0].name,
+              description: item[0].description,
+              price: item[0].price ,
               quantity: ele.quantity + quantity,
             },
           };
@@ -97,20 +100,22 @@ function App() {
       if (flag == 0) {
         const config = {
           method: "POST",
-          url: "https://crudcrud.com/api/7f7396baa800460aba3d44fbdef24678/Cart",
+          url: "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Cart",
           data: {
-            name: item.name,
-            description: item.description,
-            price: item.price,
-            quantity: 1,
+            product_id: item[0]._id,
+            name: item[0].name,
+            description: item[0].description,
+            price: item[0].price,
+            quantity: quantity,
           },
         };
-        const data = await axios(config);
-        const addcandy = data.data;
-        setcart((previtem) => {
-          return [addcandy, ...previtem];
-        });
+        await axios(config);
       }
+      const data =await axios.get(
+        "https://crudcrud.com/api/98a5467d8a384346b64695c1d1eff1fe/Cart"
+      );
+      console.log(data.data)
+      setcart(data.data);
     } catch (err) {
       console.log(err);
     }
